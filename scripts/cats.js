@@ -75,13 +75,27 @@ async function initializeGame() {
     const gameArea = document.getElementById('game-area');
     gameArea.innerHTML = '<div class="loading">Loading...</div>';
     
-    const success = await loadCatImages();
-    
-    if (success && (catSvgs.length > 0 || catPngs.length > 0)) {
-        gameArea.innerHTML = '';
-        return new CatGame();
-    } else {
-        gameArea.innerHTML = '<div class="error">Failed to load cat images. Please refresh the page.</div>';
+    try {
+        const success = await loadCatImages();
+        
+        if (success && (catSvgs.length > 0 || catPngs.length > 0)) {
+            gameArea.innerHTML = '';
+            // 添加错误处理
+            try {
+                const gameInstance = new CatGame();
+                return gameInstance;
+            } catch (error) {
+                console.error('Failed to create game instance:', error);
+                gameArea.innerHTML = '<div class="error">Failed to initialize game. Please refresh the page.</div>';
+                return null;
+            }
+        } else {
+            gameArea.innerHTML = '<div class="error">Failed to load cat images. Please refresh the page.</div>';
+            return null;
+        }
+    } catch (error) {
+        console.error('Error during game initialization:', error);
+        gameArea.innerHTML = '<div class="error">Failed to initialize game. Please refresh the page.</div>';
         return null;
     }
 } 

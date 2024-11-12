@@ -146,73 +146,50 @@ class CatGame {
     generateNonOverlappingPositions() {
         try {
             const positions = [];
-            // 确保获取到正确的游戏区域尺寸
             const gameAreaWidth = this.gameArea.clientWidth || window.innerWidth;
             const gameAreaHeight = this.gameArea.clientHeight || window.innerHeight;
             
-            // 根据屏幕大小调整猫咪尺寸
-            const baseCatSize = 80;
-            const screenRatio = Math.min(gameAreaWidth, gameAreaHeight) / 1024;
-            const catSize = Math.max(40, Math.min(baseCatSize, baseCatSize * screenRatio));
-            
-            // 使用 let 声明可变的距离值
-            let initialMinDistance = catSize * 1.2;
+            // 使用 let 而不是 const
+            let minDistance = Math.min(80, Math.min(gameAreaWidth, gameAreaHeight) * 0.1);
             const padding = 20;
-            const maxAttempts = 50;
-            const minAcceptableDistance = catSize * 0.8;
-
+            
             for (let i = 0; i < this.totalCats; i++) {
-                let placed = false;
+                let position;
+                let overlap;
                 let attempts = 0;
-                let currentMinDistance = initialMinDistance;
-
-                while (!placed && attempts < maxAttempts) {
-                    const newPosition = {
-                        x: padding + Math.random() * (gameAreaWidth - catSize - padding * 2),
-                        y: padding + Math.random() * (gameAreaHeight - catSize - padding * 2)
+                
+                do {
+                    overlap = false;
+                    position = {
+                        x: padding + Math.random() * (gameAreaWidth - minDistance - padding * 2),
+                        y: padding + Math.random() * (gameAreaHeight - minDistance - padding * 2)
                     };
-
-                    let validPosition = true;
-
-                    // 检查与其他猫咪的距离
+                    
                     for (const pos of positions) {
                         const distance = Math.sqrt(
-                            Math.pow(newPosition.x - pos.x, 2) + 
-                            Math.pow(newPosition.y - pos.y, 2)
+                            Math.pow(position.x - pos.x, 2) + 
+                            Math.pow(position.y - pos.y, 2)
                         );
-                        if (distance < currentMinDistance) {
-                            validPosition = false;
+                        if (distance < minDistance) {
+                            overlap = true;
                             break;
                         }
                     }
-
-                    if (validPosition) {
-                        positions.push(newPosition);
-                        placed = true;
-                    } else {
-                        attempts++;
-                        if (attempts % 10 === 0) {
-                            currentMinDistance = Math.max(
-                                minAcceptableDistance,
-                                currentMinDistance * 0.9
-                            );
-                        }
+                    
+                    attempts++;
+                    if (attempts > 100) {
+                        minDistance *= 0.9;
+                        attempts = 0;
                     }
-                }
-
-                // 如果实在放不下，就直接放置
-                if (!placed) {
-                    positions.push({
-                        x: padding + Math.random() * (gameAreaWidth - catSize - padding * 2),
-                        y: padding + Math.random() * (gameAreaHeight - catSize - padding * 2)
-                    });
-                }
+                } while (overlap && minDistance > 20);
+                
+                positions.push(position);
             }
-
+            
             return positions;
         } catch (error) {
             console.error('Error in generateNonOverlappingPositions:', error);
-            // 返回简单的随机位置作为后备方案
+            // 提供一个后备方案
             return Array.from({ length: this.totalCats }, () => ({
                 x: Math.random() * (this.gameArea.clientWidth - 80),
                 y: Math.random() * (this.gameArea.clientHeight - 80)
