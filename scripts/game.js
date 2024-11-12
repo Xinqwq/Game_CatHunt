@@ -134,7 +134,7 @@ class CatGame {
 
     generateNonOverlappingPositions() {
         const positions = [];
-        const catSize = Math.min(80, window.innerWidth * 0.15);
+        const catSize = 80;
         const minDistance = catSize * 1.2;
 
         for (let i = 0; i < this.totalCats; i++) {
@@ -175,9 +175,8 @@ class CatGame {
     }
 
     getRandomPosition() {
-        const catSize = Math.min(80, window.innerWidth * 0.15);
-        const maxX = this.gameArea.clientWidth - catSize;
-        const maxY = this.gameArea.clientHeight - catSize;
+        const maxX = this.gameArea.clientWidth - 80;
+        const maxY = this.gameArea.clientHeight - 80;
         return {
             x: Math.random() * maxX,
             y: Math.random() * maxY
