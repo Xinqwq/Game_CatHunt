@@ -330,12 +330,22 @@ class CatGame {
         }
         
         // 显示胜利消息
-        this.winMessage.style.display = 'flex';
-        
-        // 修改按钮文本
-        const restartBtn = document.getElementById('restart-btn');
-        if (restartBtn) {
-            restartBtn.innerHTML = '<i class="fas fa-redo"></i><span>Restart</span>';
+        const winMessage = document.getElementById('win-message');
+        if (winMessage) {
+            // 移除所有可能的隐藏样式
+            winMessage.style.removeProperty('display');
+            winMessage.style.removeProperty('visibility');
+            winMessage.classList.remove('hidden');
+            
+            // 强制显示
+            winMessage.style.display = 'flex';
+            winMessage.style.visibility = 'visible';
+            
+            // 确保在 DOM 更新后显示
+            requestAnimationFrame(() => {
+                winMessage.style.display = 'flex';
+                winMessage.style.visibility = 'visible';
+            });
         }
     }
 
@@ -343,9 +353,11 @@ class CatGame {
         // 停止计时器
         this.stopTimer();
         
-        // 确保胜利消息是隐藏的
-        if (this.winMessage) {
-            this.winMessage.style.display = 'none';
+        // 隐藏胜利消息
+        const winMessage = document.getElementById('win-message');
+        if (winMessage) {
+            winMessage.style.display = 'none';
+            winMessage.style.visibility = 'hidden';
         }
         
         // 清空游戏区域
