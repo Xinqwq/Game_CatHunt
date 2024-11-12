@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Christmas Cat Hunt</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="game-container">
+        <div id="game-area">
+            <!-- Game Area -->
+        </div>
+        <div class="game-controls">
+            <div class="control-item">
+                <i class="fas fa-clock"></i>
+                <span>Time: <span id="timer">0:00</span></span>
+            </div>
+            <div class="control-item">
+                <i class="fas fa-cat"></i>
+                <span>Found: <span id="found">0</span>/<span id="total">50</span></span>
+            </div>
+            <div class="control-item">
+                <i class="fas fa-music"></i>
+                <select id="bgm-select">
+                    <option value="">Select Music</option>
+                </select>
+            </div>
+            <button id="restart-btn" class="control-item">
+                <i class="fas fa-play"></i>
+                <span>Start Game</span>
+            </button>
+        </div>
+        <div id="win-message" class="hidden">
+            <div class="win-content">
+                Congratulations! You found all the cats!<br>
+                Time: <span id="win-time"></span><br>
+                <span id="record-message" class="new-record hidden">New Record!</span><br>
+                <div class="button-container">
+                    <button id="play-again-btn" class="control-item">
+                        <i class="fas fa-redo"></i>
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="scripts/cats.js"></script>
+    <script src="scripts/game.js"></script>
+</body>
+</html> 
