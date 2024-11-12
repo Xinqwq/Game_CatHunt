@@ -1,8 +1,10 @@
 .game-container {
     position: relative;
-    width: 1024px;
-    height: 768px;
+    width: 100%;
+    height: 100vh;
+    max-width: 1024px;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 .game-info {
@@ -26,10 +28,11 @@
 #game-area {
     position: relative;
     width: 100%;
-    height: calc(100% - 70px);
-    background: url('../assets/background.svg') no-repeat center center;
-    background-size: cover;
-    margin-bottom: 70px;
+    height: calc(100vh - 60px);
+    background-image: url('../assets/bg_Iphone.svg');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .cat {
@@ -53,14 +56,10 @@
 .cat:hover {
     opacity: 1;
     transform: scale(1.3);
-    filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.8))
-           drop-shadow(0 0 20px rgba(0, 255, 0, 0.6));
 }
 
 .cat.found {
     opacity: 1;
-    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))
-           drop-shadow(0 0 25px rgba(255, 0, 0, 0.6));
 }
 
 .hidden {
@@ -229,4 +228,219 @@
     color: #2C3E50;
     font-size: 20px;
     margin: 10px 0;
+}
+
+/* 添加新的响应式样式 */
+@media (max-width: 1024px) {
+    .game-container {
+        width: 100%;
+        height: 100vh;
+        max-width: 1024px;
+    }
+
+    .cat {
+        width: 60px;  /* 在小屏幕上稍微缩小猫咪 */
+        height: 60px;
+    }
+
+    .control-item {
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .control-item {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .cat {
+        width: 50px;  /* 在更小的屏幕上进一步缩小猫咪 */
+        height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .control-item {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .game-controls {
+        padding: 5px;
+    }
+}
+
+/* 在现有样式的基础上添加/修改以下内容 */
+
+/* 移动设备优化 */
+@media (max-width: 768px) {
+    .game-controls {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .control-item {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .cat {
+        width: 50px;
+        height: 50px;
+    }
+
+    .win-content {
+        padding: 20px 30px;
+        font-size: 18px;
+    }
+
+    #bgm-select {
+        max-width: 120px;
+        font-size: 14px;
+    }
+}
+
+/* 小屏幕设备优化 */
+@media (max-width: 480px) {
+    .game-controls {
+        padding: 5px;
+    }
+
+    .control-item {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .cat {
+        width: 40px;
+        height: 40px;
+    }
+
+    .win-content {
+        padding: 15px 25px;
+        font-size: 16px;
+    }
+
+    #bgm-select {
+        max-width: 100px;
+    }
+}
+
+/* 横屏模式优化 */
+@media (orientation: landscape) and (max-height: 500px) {
+    .game-controls {
+        padding: 5px;
+    }
+
+    .control-item {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    #game-area {
+        height: calc(100vh - 40px);
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+    .cat:hover {
+        transform: none;
+    }
+
+    .control-item:hover {
+        transform: none;
+    }
+
+    .cat.found {
+        transform: scale(1.1);
+    }
+}
+
+/* iPad 优化 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .cat {
+        width: 60px;
+        height: 60px;
+    }
+
+    .game-controls {
+        padding: 12px;
+    }
+
+    .control-item {
+        font-size: 16px;
+        padding: 10px 15px;
+    }
+}
+
+/* 添加计数器动画 */
+@keyframes counterPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.counter-animation {
+    animation: counterPop 0.5s ease;
+    background: #FF6B6B !important; /* 临时改变背景色 */
+    transition: background-color 0.5s ease;
+}
+
+/* 保持原有的桌面端样式不变，只添加移动端的特殊处理 */
+@media (max-width: 768px) {
+    #game-area {
+        height: 100vh; /* 使用视口高度 */
+        width: 100vw; /* 使用视口宽度 */
+        background-size: cover; /* 改为cover确保背景完全覆盖 */
+        margin: 0;
+        padding: 0;
+        position: fixed; /* 固定位置 */
+        top: 0;
+        left: 0;
+    }
+
+    .game-container {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* 调整控制栏在移动端的位置 */
+    .game-controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(44, 62, 80, 0.95); /* 稍微增加透明度 */
+        padding: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        z-index: 1000;
+    }
+
+    /* 移动端的开始按钮样式 */
+    #start-game-btn {
+        margin-top: 20px;
+        font-size: 20px;
+        padding: 12px 24px;
+    }
+}
+
+/* 特别处理小屏幕手机 */
+@media (max-width: 480px) {
+    #game-area {
+        height: calc(100vh - 60px); /* 减去控制栏的高度 */
+    }
+
+    .cat {
+        width: 40px;
+        height: 40px;
+    }
 }

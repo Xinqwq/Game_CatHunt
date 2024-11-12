@@ -69,6 +69,17 @@ class CatGame {
             const select = document.getElementById('bgm-select');
             select.innerHTML = '';
             
+            // 过滤掉不可用的音乐
+            this.musicList = this.musicList.filter(music => {
+                try {
+                    const audio = new Audio(`assets/music/${music.file}`);
+                    return true;
+                } catch (e) {
+                    console.warn(`Music file not available: ${music.file}`);
+                    return false;
+                }
+            });
+
             this.musicList.forEach(music => {
                 const option = document.createElement('option');
                 option.value = music.file;
@@ -76,7 +87,7 @@ class CatGame {
                 select.appendChild(option);
             });
 
-            // 播放第一首歌
+            // 播放第一首有效的音乐
             if (this.musicList.length > 0) {
                 this.currentMusicIndex = 0;
                 const firstMusic = this.musicList[0];
@@ -134,12 +145,16 @@ class CatGame {
 
     generateNonOverlappingPositions() {
         const positions = [];
-        const catSize = 80;
+        const catSize = Math.min(80, window.innerWidth * 0.15);
         const minDistance = catSize * 1.2;
+        const padding = 20;
+        const maxAttempts = 100;
 
         for (let i = 0; i < this.totalCats; i++) {
             let newPosition;
             let overlap;
+            let attempts = 0;
+            
             do {
                 overlap = false;
                 newPosition = this.getRandomPosition();
@@ -154,6 +169,12 @@ class CatGame {
                         break;
                     }
                 }
+                
+                attempts++;
+                if (attempts > maxAttempts) {
+                    minDistance *= 0.9;
+                    attempts = 0;
+                }
             } while (overlap);
             
             positions.push(newPosition);
@@ -166,7 +187,7 @@ class CatGame {
         cat.className = 'cat';
         cat.innerHTML = getRandomCatImage(index);
         
-        // 限制旋转角度在 -30 到 30 度之间
+        // 限制旋转度在 -30 到 30 度之间
         const rotation = (Math.random() * 60) - 30;
         cat.style.transform = `rotate(${rotation}deg)`;
         
@@ -175,11 +196,15 @@ class CatGame {
     }
 
     getRandomPosition() {
-        const maxX = this.gameArea.clientWidth - 80;
-        const maxY = this.gameArea.clientHeight - 80;
+        const catSize = Math.min(80, window.innerWidth * 0.15);
+        const padding = 20;
+        
+        const maxX = this.gameArea.clientWidth - catSize - (padding * 2);
+        const maxY = this.gameArea.clientHeight - catSize - (padding * 2);
+        
         return {
-            x: Math.random() * maxX,
-            y: Math.random() * maxY
+            x: padding + (Math.random() * maxX),
+            y: padding + (Math.random() * maxY)
         };
     }
 
@@ -192,12 +217,27 @@ class CatGame {
             
             // 设置随机颜色
             const color = this.getRandomColor();
-            const svg = cat.querySelector('svg');
-            if (svg) {
-                svg.style.fill = color;
+            const element = cat.querySelector('svg, img');
+            if (element) {
+                if (element.tagName.toLowerCase() === 'svg') {
+                    // 对于SVG，直接填充颜色
+                    const paths = element.querySelectorAll('path');
+                    paths.forEach(path => {
+                        path.style.fill = color;
+                        path.style.stroke = '#000';
+                        path.style.strokeWidth = '1px';
+                    });
+                } else {
+                    // 对于PNG图片，使用滤镜效果
+                    element.style.filter = `
+                        brightness(1.2)
+                        opacity(0.9)
+                        drop-shadow(0 0 2px ${color})
+                    `;
+                }
             }
             
-            // 添加点击动画，保持原有旋转
+            // 添加点击动画
             cat.style.transform = `${originalRotation} scale(1.3)`;
             setTimeout(() => {
                 cat.style.transform = originalRotation;
@@ -207,8 +247,16 @@ class CatGame {
             this.sounds.find.currentTime = 0;
             this.sounds.find.play();
             
+            // 更新计数器并添加动画效果
             this.foundCats++;
             this.foundCounter.textContent = this.foundCats;
+            
+            // 添加计数器动画效果
+            const foundDisplay = document.querySelector('.control-item:nth-child(2)');
+            foundDisplay.classList.add('counter-animation');
+            setTimeout(() => {
+                foundDisplay.classList.remove('counter-animation');
+            }, 500);
             
             if (this.foundCats === this.totalCats) {
                 this.showWinMessage();
@@ -217,16 +265,24 @@ class CatGame {
     }
 
     getRandomColor() {
-        // 使用更鲜艳的颜色
+        // 赛博朋克风格的霓虹色系
         const colors = [
-            '#FF0000', // 红
-            '#FF7F00', // 橙
-            '#FFFF00', // 黄
-            '#00FF00', // 绿
-            '#0000FF', // 蓝
-            '#4B0082', // 靛
-            '#8B00FF'  // 紫
+            '#8a2be2',  // 霓虹紫
+            '#ff1493',  // 亮粉红
+            '#00ffff',  // 电光蓝
+            '#39ff14',  // 霓虹绿
+            '#ffd700',  // 赛博黄
+            '#00b7eb',  // 金属青蓝
+            '#ff4500',  // 赛博橙
+            '#bfff00',  // 青柠绿
+            '#ff5555',  // 烈焰红
+            '#ff00ff',  // 霓虹紫红
+            '#00e5ff',  // 虚拟青色
+            '#6a0dad',  // 蓝紫色
+            '#483d8b'   // 炫目紫蓝
         ];
+        // 不使用深夜黑和金属灰，因为它们太暗了，可能影响可见度
+        
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
@@ -308,7 +364,7 @@ class CatGame {
 // 创建全局游戏实例
 let game = null;
 
-// 修改初始化方式
+// 修改初始化部分
 window.addEventListener('load', async () => {
     const restartBtn = document.getElementById('restart-btn');
     const gameArea = document.getElementById('game-area');
@@ -320,41 +376,62 @@ window.addEventListener('load', async () => {
         winMessage.style.display = 'none';
     }
     
-    // 统一处理所有重启相关的按钮点击事件
-    async function handleGameStart() {
-        if (!game) {
-            // 清空游戏区域
-            if (gameArea) {
-                gameArea.innerHTML = '<div class="loading">Loading...</div>';
-            }
-            // 初始化游戏
-            game = await initializeGame();
-            if (game) {
-                restartBtn.innerHTML = '<i class="fas fa-redo"></i><span>Restart</span>';
-            }
-        } else {
-            game.restart();
+    // 统一的游戏启动函数
+    async function startGame() {
+        if (winMessage) {
+            winMessage.style.display = 'none';
+        }
+        
+        if (gameArea) {
+            gameArea.innerHTML = '<div class="loading">Loading...</div>';
+        }
+        
+        game = await initializeGame();
+        
+        if (game && restartBtn) {
+            restartBtn.innerHTML = '<i class="fas fa-redo"></i><span>Restart</span>';
         }
     }
     
-    // 绑定按钮事件
-    if (restartBtn) {
-        restartBtn.innerHTML = '<i class="fas fa-play"></i><span>Start Game</span>';
-        restartBtn.addEventListener('click', handleGameStart);
-    }
-    
-    if (playAgainBtn) {
-        playAgainBtn.addEventListener('click', handleGameStart);
-    }
-
     // 显示开始游戏提示
     if (gameArea) {
         gameArea.innerHTML = `
             <div class="start-message">
                 <h1>Christmas Cat Hunt</h1>
                 <p>Find all the hidden cats!</p>
-                <p>Click "Start Game" to begin</p>
+                <button id="start-game-btn" class="control-item">
+                    <i class="fas fa-play"></i>
+                    Start Game
+                </button>
             </div>
         `;
+        
+        // 绑定开始按钮事件
+        const startGameBtn = document.getElementById('start-game-btn');
+        if (startGameBtn) {
+            startGameBtn.addEventListener('click', startGame);
+        }
+    }
+    
+    // 绑定顶部开始/重启按钮事件，使用相同的 startGame 函数
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            if (!game) {
+                startGame();
+            } else {
+                game.restart();
+            }
+        });
+    }
+    
+    // 绑定胜利后的重玩按钮事件，使用相同的重启逻辑
+    if (playAgainBtn) {
+        playAgainBtn.addEventListener('click', () => {
+            if (game) {
+                game.restart();
+            } else {
+                startGame();
+            }
+        });
     }
 }); 
