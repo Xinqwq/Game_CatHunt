@@ -146,7 +146,7 @@ class CatGame {
     generateNonOverlappingPositions() {
         const positions = [];
         const catSize = Math.min(80, window.innerWidth * 0.15);
-        const minDistance = catSize * 1.2;
+        let minDistance = catSize * 1.2;
         const padding = 20;
         const maxAttempts = 100;
 
@@ -154,6 +154,7 @@ class CatGame {
             let newPosition;
             let overlap;
             let attempts = 0;
+            let currentMinDistance = minDistance;
             
             do {
                 overlap = false;
@@ -164,7 +165,7 @@ class CatGame {
                         Math.pow(newPosition.x - pos.x, 2) + 
                         Math.pow(newPosition.y - pos.y, 2)
                     );
-                    if (distance < minDistance) {
+                    if (distance < currentMinDistance) {
                         overlap = true;
                         break;
                     }
@@ -172,10 +173,10 @@ class CatGame {
                 
                 attempts++;
                 if (attempts > maxAttempts) {
-                    minDistance *= 0.9;
+                    currentMinDistance *= 0.9;
                     attempts = 0;
                 }
-            } while (overlap);
+            } while (overlap && currentMinDistance > catSize * 0.5);
             
             positions.push(newPosition);
         }
