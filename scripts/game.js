@@ -366,55 +366,68 @@ class CatGame {
 let game = null;
 
 // 修改初始化部分
-window.addEventListener('load', async () => {
+window.addEventListener('DOMContentLoaded', async () => {
     const restartBtn = document.getElementById('restart-btn');
     const gameArea = document.getElementById('game-area');
     const winMessage = document.getElementById('win-message');
     const playAgainBtn = document.getElementById('play-again-btn');
     
-    // 确保胜利消息一开始是隐藏的
+    // 立即隐藏胜利消息
     if (winMessage) {
         winMessage.style.display = 'none';
+        winMessage.style.visibility = 'hidden'; // 添加额外的隐藏保证
     }
     
     // 统一的游戏启动函数
     async function startGame() {
-        if (winMessage) {
-            winMessage.style.display = 'none';
-        }
-        
-        if (gameArea) {
-            gameArea.innerHTML = '<div class="loading">Loading...</div>';
-        }
-        
-        game = await initializeGame();
-        
-        if (game && restartBtn) {
-            restartBtn.innerHTML = '<i class="fas fa-redo"></i><span>Restart</span>';
-        }
-    }
-    
-    // 显示开始游戏提示
-    if (gameArea) {
-        gameArea.innerHTML = `
-            <div class="start-message">
-                <h1>Christmas Cat Hunt</h1>
-                <p>Find all the hidden cats!</p>
-                <button id="start-game-btn" class="control-item">
-                    <i class="fas fa-play"></i>
-                    Start Game
-                </button>
-            </div>
-        `;
-        
-        // 绑定开始按钮事件
-        const startGameBtn = document.getElementById('start-game-btn');
-        if (startGameBtn) {
-            startGameBtn.addEventListener('click', startGame);
+        try {
+            if (winMessage) {
+                winMessage.style.display = 'none';
+                winMessage.style.visibility = 'hidden';
+            }
+            
+            if (gameArea) {
+                gameArea.innerHTML = '<div class="loading">Loading...</div>';
+            }
+            
+            // 等待资源加载完成
+            await new Promise(resolve => setTimeout(resolve, 100)); // 短暂延迟确保DOM更新
+            game = await initializeGame();
+            
+            if (game && restartBtn) {
+                restartBtn.innerHTML = '<i class="fas fa-redo"></i><span>Restart</span>';
+            }
+        } catch (error) {
+            console.error('Game initialization failed:', error);
+            if (gameArea) {
+                gameArea.innerHTML = '<div class="error">Failed to start game. Please refresh the page.</div>';
+            }
         }
     }
     
-    // 绑定顶部开始/重启按钮事件，使用相同的 startGame 函数
+    // 确保开始界面在所有资源加载完成后显示
+    window.addEventListener('load', () => {
+        if (gameArea && !game) {
+            gameArea.innerHTML = `
+                <div class="start-message">
+                    <h1>Christmas Cat Hunt</h1>
+                    <p>Find all the hidden cats!</p>
+                    <button id="start-game-btn" class="control-item">
+                        <i class="fas fa-play"></i>
+                        Start Game
+                    </button>
+                </div>
+            `;
+            
+            // 重新绑定开始按钮事件
+            const startGameBtn = document.getElementById('start-game-btn');
+            if (startGameBtn) {
+                startGameBtn.addEventListener('click', startGame);
+            }
+        }
+    });
+    
+    // 绑定按钮事件
     if (restartBtn) {
         restartBtn.addEventListener('click', () => {
             if (!game) {
@@ -425,7 +438,6 @@ window.addEventListener('load', async () => {
         });
     }
     
-    // 绑定胜利后的重玩按钮事件，使用相同的重启逻辑
     if (playAgainBtn) {
         playAgainBtn.addEventListener('click', () => {
             if (game) {
